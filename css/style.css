@@ -532,3 +532,12 @@ p  { color: var(--text-secondary); margin-bottom: 1em; }
 /* v1.4 */
 .hero-logo-ring{overflow:hidden}
 .hero-logo-ring .hero-logo-img{width:100%;height:100%;object-fit:cover;transform:scale(1.5)}
+
+/* v1.5 */
+.logo-chip{height:64px;padding:6px 16px}
+.logo-chip.mya{height:76px;padding:6px 12px}
+
+/* v1.6 */
+.logo-chip.mya{height:64px;padding:6px 16px}
+.footer .chips-label{color:rgba(255,255,255,.5)}
+.footer-disclaimer{max-width:780px;margin:0 auto 1.25rem;text-align:center;font-size:.75rem;line-height:1.6;color:rgba(255,255,255,.55)}
