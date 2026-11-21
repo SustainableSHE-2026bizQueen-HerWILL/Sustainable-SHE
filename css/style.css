@@ -541,3 +541,21 @@ p  { color: var(--text-secondary); margin-bottom: 1em; }
 .logo-chip.mya{height:64px;padding:6px 16px}
 .footer .chips-label{color:rgba(255,255,255,.5)}
 .footer-disclaimer{max-width:780px;margin:0 auto 1.25rem;text-align:center;font-size:.75rem;line-height:1.6;color:rgba(255,255,255,.55)}
+
+/* v1.7 */
+.flag-sy{width:24px;height:16px;border-radius:2px;margin-inline-end:.5rem;vertical-align:-3px;box-shadow:0 0 0 1px rgba(255,255,255,.4)}
+a.logo-chip{text-decoration:none;transition:var(--transition)}
+a.logo-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.logo-chip.lg{height:84px;padding:8px 18px}
+.logo-chip.lg img{max-width:200px}
+.footer-funders .chips-row{margin-bottom:.25rem}
+.ent-products{display:grid;gap:2px;background:#fff}
+.ent-products.n1{grid-template-columns:1fr}.ent-products.n2{grid-template-columns:1fr 1fr}.ent-products.n3{grid-template-columns:repeat(3,1fr)}
+.prod-thumb{padding:0;border:0;background:var(--bg-light);aspect-ratio:1/1;overflow:hidden;cursor:zoom-in;display:block}
+.ent-products.n1 .prod-thumb{aspect-ratio:4/3}
+.prod-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease}
+.prod-thumb:hover img{transform:scale(1.06)}
+.lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.lightbox[hidden]{display:none}
+.lightbox img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.lb-close{position:absolute;top:1rem;right:1rem;width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:#000;font-size:1.2rem;cursor:pointer}
