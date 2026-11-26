@@ -84,7 +84,7 @@
       <input type="text" id="searchBox" class="search-box" placeholder="Search by name, project, or city…" />
       <span class="results-count" id="cardCount">Showing 23 entrepreneurs</span>
     </div>
-    <div id="cohortGrid" class="grid-5"></div>
+    <div id="headProducts" class="group-head"><h2><span class="en-text">Women with products and services</span><span class="ar-text">صاحبات المنتجات والخدمات</span><span class="count" id="cntProducts"></span></h2><p><span class="en-text">Entrepreneurs who are already selling. Swipe through their products.</span><span class="ar-text">رائدات أعمال يبعن منتجاتهن وخدماتهن اليوم. مرّري لمشاهدة منتجاتهن.</span></p></div><div id="gridProducts" class="grid-cards"></div><div id="headIdeas" class="group-head"><h2><span class="en-text">Women with project ideas</span><span class="ar-text">صاحبات أفكار المشاريع</span><span class="count" id="cntIdeas"></span></h2><p><span class="en-text">They shaped their idea and learned the skills. Their projects are about to start.</span><span class="ar-text">بلورن فكرتهن وتعلمن المهارات، ومشاريعهن على وشك الانطلاق.</span></p></div><div id="gridIdeas" class="grid-cards"></div>
   </div>
 </section>
 
@@ -135,58 +135,106 @@
   </div>
 </footer>
 
-<div id="lightbox" class="lightbox" hidden><button type="button" class="lb-close" aria-label="Close">✕</button><img alt="" /></div>
+<div id="lightbox" class="lightbox" hidden><button type="button" class="lb-close" aria-label="Close">✕</button><button type="button" class="lb-nav lb-prev" aria-label="Previous">&#8249;</button><img alt="" /><button type="button" class="lb-nav lb-next" aria-label="Next">&#8250;</button><div class="lb-count"></div></div>
 <button id="scrollTop" aria-label="Back to top">↑</button>
 <script src="js/data-c2.js"></script>
 <script>
-// Override for C2 — use entrepreneursC2 array
-document.addEventListener('DOMContentLoaded', function() {
-  const LANG_KEY = 'she_lang';
-  function getLang() { return localStorage.getItem(LANG_KEY) || 'en'; }
-  function applyLang(lang) {
-    const b = document.body;
-    if (lang==='ar') { b.classList.remove('ltr'); b.classList.add('rtl'); document.documentElement.setAttribute('lang','ar'); document.documentElement.setAttribute('dir','rtl'); }
+document.addEventListener('DOMContentLoaded', function () {
+  var LANG_KEY='she_lang';
+  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function getLang(){ return localStorage.getItem(LANG_KEY)||'en'; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function initials(n){ var p=n.trim().split(' '); return p.length===1 ? p[0][0].toUpperCase() : (p[0][0]+p[1][0]).toUpperCase(); }
+  function applyLang(lang){
+    var b=document.body;
+    if(lang==='ar'){ b.classList.remove('ltr'); b.classList.add('rtl'); document.documentElement.setAttribute('lang','ar'); document.documentElement.setAttribute('dir','rtl'); }
     else { b.classList.remove('rtl'); b.classList.add('ltr'); document.documentElement.setAttribute('lang','en'); document.documentElement.setAttribute('dir','ltr'); }
-    const t=document.getElementById('langToggle'); if(t) t.textContent=lang==='ar'?'EN':'عربي';
-    const m=document.getElementById('mobileLangToggle'); if(m) m.textContent=lang==='ar'?'EN':'عربي';
-    localStorage.setItem(LANG_KEY,lang);
-    renderC2(getLang());
+    var t=document.getElementById('langToggle'); if(t){ t.textContent=lang==='ar'?'EN':'عربي'; }
+    var m=document.getElementById('mobileLangToggle'); if(m){ m.textContent=lang==='ar'?'EN':'عربي'; }
+    localStorage.setItem(LANG_KEY,lang); render(lang);
   }
-  function getInitials(name) { const p=name.trim().split(' '); return p.length===1?p[0][0].toUpperCase():(p[0][0]+p[1][0]).toUpperCase(); }
-  function renderC2(lang) {
-    const q = (document.getElementById('searchBox')||{}).value?.toLowerCase().trim()||'';
-    const data = q ? entrepreneursC2.filter(e=>
-      e.nameEn.toLowerCase().includes(q)||e.nameAr.includes(q)||
-      e.projectEn.toLowerCase().includes(q)||e.projectAr.includes(q)||
-      e.location.toLowerCase().includes(q)||e.locationAr.includes(q)
-    ) : entrepreneursC2;
-    const grid = document.getElementById('cohortGrid');
-    grid.innerHTML='';
-    data.forEach(e=>{
-      const name=lang==='ar'?e.nameAr:e.nameEn, project=lang==='ar'?e.projectAr:e.projectEn;
-      const tagline=lang==='ar'?e.taglineAr:e.taglineEn, loc=lang==='ar'?e.locationAr:e.location;
-      const avatar=e.photo?`<img src="${e.photo}" alt="${e.nameEn}" class="ent-photo" loading="lazy"/>`:`<div class="ent-initials">${getInitials(e.nameEn)}</div>`;
-      let links='';
-      if(e.wa)  links+=`<a href="https://wa.me/${e.wa}" target="_blank" rel="noopener" class="soc-link wa">📱 ${lang==='ar'?'واتساب':'WhatsApp'}</a>`;
-      if(e.ig)  links+=`<a href="https://instagram.com/${e.ig}" target="_blank" rel="noopener" class="soc-link ig">📷 Instagram</a>`;
-      if(e.fb && !e.fb.includes(' ')) links+=`<a href="https://facebook.com/${e.fb}" target="_blank" rel="noopener" class="soc-link fb">📘 Facebook</a>`;
-      grid.innerHTML+=`<div class="entrepreneur-card"><div class="ent-head">${avatar}<div class="ent-name">${name}</div><div class="ent-project">${project}</div></div>${(e.products&&e.products.length)?'<div class="ent-products n'+e.products.length+'">'+e.products.map(function(p){return '<button type="button" class="prod-thumb" data-src="'+p+'" aria-label="'+project+'"><img src="'+p+'" alt="'+project+'" loading="lazy"/></button>';}).join('')+'</div>':''}<div class="ent-body"><p class="ent-tagline">${tagline}</p><p class="ent-location">📍 ${loc}</p><div class="ent-links">${links}</div></div></div>`;
+  function mediaHtml(e,name,project,lang,idea){
+    var P=e.products||[], badge=idea?'<span class="idea-badge">'+(lang==='ar'?'فكرة مشروع':'Project idea')+'</span>':'', s='';
+    if(P.length){
+      s='<div class="carousel">';
+      P.forEach(function(p,i){ s+='<button type="button" class="slide" data-i="'+i+'" style="--bg:url('+p+')" aria-label="'+esc(project)+'"><img src="'+p+'" alt="'+esc(project)+'" loading="lazy"></button>'; });
+      s+='</div>';
+      if(P.length>1){
+        s+='<button type="button" class="car-btn prev" aria-label="Previous">&#8249;</button><button type="button" class="car-btn next" aria-label="Next">&#8250;</button><div class="car-dots">';
+        P.forEach(function(p,i){ s+='<i'+(i===0?' class="on"':'')+'></i>'; });
+        s+='</div><span class="car-count">1/'+P.length+'</span>';
+      }
+      return '<div class="ent-media has-carousel" data-count="'+P.length+'">'+s+badge+'</div>';
+    }
+    if(e.photo){ return '<div class="ent-media"><img class="ent-cover" src="'+e.photo+'" alt="'+esc(name)+'" loading="lazy">'+badge+'</div>'; }
+    return '<div class="ent-media"><div class="ent-initials-lg">'+initials(e.nameEn)+'</div>'+badge+'</div>';
+  }
+  function card(e,lang,idea){
+    var name=lang==='ar'?e.nameAr:e.nameEn, project=lang==='ar'?e.projectAr:e.projectEn, tagline=lang==='ar'?e.taglineAr:e.taglineEn, loc=lang==='ar'?e.locationAr:e.location;
+    var hasP=(e.products||[]).length>0, av=(hasP&&e.photo)?'<img class="ent-avatar" src="'+e.photo+'" alt="" loading="lazy">':'', ln='';
+    if(e.wa){ ln+='<a href="https://wa.me/'+e.wa+'" target="_blank" rel="noopener" class="soc-link wa">📱 '+(lang==='ar'?'واتساب':'WhatsApp')+'</a>'; }
+    if(e.ig){ ln+='<a href="https://instagram.com/'+e.ig+'" target="_blank" rel="noopener" class="soc-link ig">📷 Instagram</a>'; }
+    if(e.fb && e.fb.indexOf(' ')<0){ ln+='<a href="https://facebook.com/'+e.fb+'" target="_blank" rel="noopener" class="soc-link fb">📘 Facebook</a>'; }
+    return '<article class="entrepreneur-card ec2">'+mediaHtml(e,name,project,lang,idea)+'<div class="ent-id">'+av+'<div><div class="ent-name">'+name+'</div><div class="ent-project">'+project+'</div></div></div><div class="ent-body"><p class="ent-tagline">'+tagline+'</p><p class="ent-location">📍 '+loc+'</p><div class="ent-links">'+ln+'</div></div></article>';
+  }
+  var timers=[];
+  function initCarousels(){
+    timers.forEach(clearInterval); timers=[];
+    document.querySelectorAll('.has-carousel').forEach(function(root,k){
+      var n=+root.getAttribute('data-count'); if(n<2){ return; }
+      var track=root.querySelector('.carousel'), dots=root.querySelectorAll('.car-dots i'), cnt=root.querySelector('.car-count'), paused=false, resume=null, visible=true;
+      function cur(){ var w=track.clientWidth||1; return Math.min(n-1,Math.max(0,Math.round(track.scrollLeft/w))); }
+      function show(i){ for(var d=0;d<dots.length;d++){ dots[d].className=(d===i)?'on':''; } cnt.textContent=(i+1)+'/'+n; }
+      function go(i){ i=(i+n)%n; var left=i*(track.clientWidth||0); if(track.scrollTo){ track.scrollTo({left:left,behavior:'smooth'}); } else { track.scrollLeft=left; } show(i); }
+      track.addEventListener('scroll',function(){ show(cur()); });
+      root.querySelector('.prev').addEventListener('click',function(ev){ ev.stopPropagation(); go(cur()-1); });
+      root.querySelector('.next').addEventListener('click',function(ev){ ev.stopPropagation(); go(cur()+1); });
+      function pause(){ paused=true; clearTimeout(resume); }
+      function later(){ clearTimeout(resume); resume=setTimeout(function(){ paused=false; },6000); }
+      root.addEventListener('mouseenter',pause); root.addEventListener('mouseleave',later);
+      root.addEventListener('touchstart',pause,{passive:true}); root.addEventListener('touchend',later,{passive:true});
+      if('IntersectionObserver' in window){ new IntersectionObserver(function(en){ visible=en[0].isIntersecting; },{threshold:0.4}).observe(root); }
+      if(!reduce){ timers.push(setInterval(function(){ if(!paused&&visible){ go(cur()+1); } },3800+(k%5)*350)); }
     });
-    const c=document.getElementById('cardCount');
-    if(c) c.textContent=lang==='ar'?`عرض ${data.length} رائدة أعمال`:`Showing ${data.length} entrepreneurs`;
   }
+  function render(lang){
+    var q=(document.getElementById('searchBox').value||'').toLowerCase().trim();
+    var list=entrepreneursC2.filter(function(e){ if(!q){ return true; } return (e.nameEn+' '+e.projectEn+' '+e.location).toLowerCase().indexOf(q)>-1||e.nameAr.indexOf(q)>-1||e.projectAr.indexOf(q)>-1||e.locationAr.indexOf(q)>-1; });
+    var prod=list.filter(function(e){ return e.stage!=='idea'; }), idea=list.filter(function(e){ return e.stage==='idea'; });
+    document.getElementById('gridProducts').innerHTML=prod.map(function(e){ return card(e,lang,false); }).join('');
+    document.getElementById('gridIdeas').innerHTML=idea.map(function(e){ return card(e,lang,true); }).join('');
+    document.getElementById('headProducts').hidden=!prod.length; document.getElementById('headIdeas').hidden=!idea.length;
+    document.getElementById('cntProducts').textContent=prod.length; document.getElementById('cntIdeas').textContent=idea.length;
+    var c=document.getElementById('cardCount'); if(c){ c.textContent=lang==='ar'?('عرض '+list.length+' رائدة أعمال'):('Showing '+list.length+' entrepreneurs'); }
+    initCarousels();
+  }
+  var drag=null;
+  document.addEventListener('mousedown',function(ev){ var tr=ev.target.closest('.carousel'); if(!tr){ return; } drag={tr:tr,sx:ev.clientX,sl:tr.scrollLeft,moved:false}; tr.classList.add('drag'); });
+  document.addEventListener('mousemove',function(ev){ if(!drag){ return; } var dx=ev.clientX-drag.sx; if(Math.abs(dx)>4){ drag.moved=true; } drag.tr.scrollLeft=drag.sl-dx; });
+  document.addEventListener('mouseup',function(){ if(!drag){ return; } var tr=drag.tr; tr.classList.remove('drag'); if(drag.moved){ window.__moved=true; setTimeout(function(){ window.__moved=false; },60); var w=tr.clientWidth||1; tr.scrollTo({left:Math.round(tr.scrollLeft/w)*w,behavior:'smooth'}); } drag=null; });
+  var lb=document.getElementById('lightbox'), lbi=lb.querySelector('img'), lbc=lb.querySelector('.lb-count'), set=[], at=0, tx=null;
+  function lbShow(){ lbi.src=set[at]; lbc.textContent=(at+1)+' / '+set.length; lb.classList.toggle('single',set.length<2); }
+  function lbOpen(list,i){ set=list; at=i; lbShow(); lb.hidden=false; document.body.style.overflow='hidden'; }
+  function lbClose(){ lb.hidden=true; lbi.removeAttribute('src'); document.body.style.overflow=''; }
+  function lbMove(d){ at=(at+d+set.length)%set.length; lbShow(); }
+  document.addEventListener('click',function(ev){
+    var s=ev.target.closest('.slide');
+    if(s){ if(window.__moved){ return; } var root=s.closest('.has-carousel'); var list=[].map.call(root.querySelectorAll('.slide img'),function(i){ return i.getAttribute('src'); }); lbOpen(list,+s.getAttribute('data-i')); return; }
+    if(ev.target.closest('.lb-close')||ev.target===lb){ lbClose(); return; }
+    if(ev.target.closest('.lb-prev')){ lbMove(-1); return; }
+    if(ev.target.closest('.lb-next')){ lbMove(1); return; }
+  });
+  document.addEventListener('keydown',function(ev){ if(lb.hidden){ return; } if(ev.key==='Escape'){ lbClose(); } if(ev.key==='ArrowRight'){ lbMove(1); } if(ev.key==='ArrowLeft'){ lbMove(-1); } });
+  lb.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; },{passive:true});
+  lb.addEventListener('touchend',function(e){ if(tx===null){ return; } var dx=e.changedTouches[0].clientX-tx; tx=null; if(Math.abs(dx)>45){ lbMove(dx<0?1:-1); } },{passive:true});
   applyLang(getLang());
-  document.getElementById('langToggle')?.addEventListener('click',()=>{applyLang(getLang()==='en'?'ar':'en');});
-  document.getElementById('mobileLangToggle')?.addEventListener('click',()=>{applyLang(getLang()==='en'?'ar':'en'); document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow='';});
-  document.getElementById('hamburger')?.addEventListener('click',()=>{document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow='hidden';});
-  document.getElementById('mobileNavClose')?.addEventListener('click',()=>{document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow='';});
-  document.getElementById('searchBox')?.addEventListener('input',()=>renderC2(getLang()));
-  window.addEventListener('scroll',()=>{ const b=document.getElementById('scrollTop'); if(b) b.classList.toggle('show',window.scrollY>400); });
-  document.getElementById('scrollTop')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-  var lb=document.getElementById('lightbox'), lbi=lb.querySelector('img');
-  function closeLb(){lb.hidden=true; lbi.removeAttribute('src'); document.body.style.overflow='';}
-  document.addEventListener('click',function(ev){var b=ev.target.closest('.prod-thumb'); if(b){lbi.src=b.getAttribute('data-src'); lbi.alt=b.getAttribute('aria-label')||''; lb.hidden=false; document.body.style.overflow='hidden';} else if(ev.target===lb||ev.target.closest('.lb-close')){closeLb();}});
-  document.addEventListener('keydown',function(ev){if(ev.key==='Escape'){closeLb();}});
+  var lt=document.getElementById('langToggle'); if(lt){ lt.addEventListener('click',function(){ applyLang(getLang()==='en'?'ar':'en'); }); }
+  var ml=document.getElementById('mobileLangToggle'); if(ml){ ml.addEventListener('click',function(){ applyLang(getLang()==='en'?'ar':'en'); document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow=''; }); }
+  var hb=document.getElementById('hamburger'); if(hb){ hb.addEventListener('click',function(){ document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow='hidden'; }); }
+  var mc=document.getElementById('mobileNavClose'); if(mc){ mc.addEventListener('click',function(){ document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow=''; }); }
+  document.getElementById('searchBox').addEventListener('input',function(){ render(getLang()); });
+  window.addEventListener('scroll',function(){ var b=document.getElementById('scrollTop'); if(b){ b.classList.toggle('show',window.scrollY>400); } });
+  var st=document.getElementById('scrollTop'); if(st){ st.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); }); }
 });
 </script>
 </body>
